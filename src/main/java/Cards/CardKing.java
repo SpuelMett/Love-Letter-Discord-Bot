@@ -4,22 +4,28 @@ import CoreGame.Game;
 import CoreGame.Player;
 import GameHandling.Command;
 
-public class CardCountess implements ICard {
+public class CardKing implements ICard{
 
-    private int value = 7;
-    private String name = "Countess";
-    private boolean isPlayOnPlayer = false;
+    private int value = 6;
+    private String name = "King";
+    private boolean isPlayOnPlayer = true;
     private boolean needsFourthWord = false;
 
-    public CardCountess(){
+    public CardKing(){
 
     }
 
-    /**
-     * CoreGame.Player can compare a card
-     */
     public String action(Player fromPlayer, Player onPlayer, Game game, Command command){
-        return fromPlayer.getName() + " played the Countess.";
+        //remove played card from fromPlayer
+        fromPlayer.removeCard(this);
+
+        ICard temp = fromPlayer.getCard();
+        fromPlayer.dropCard();
+        fromPlayer.giveCard(onPlayer.getCard());
+        onPlayer.dropCard();
+        onPlayer.giveCard(temp);
+
+        return onPlayer.getName() + " and " + fromPlayer.getName() + " switched cards. You received you new cards.";
     }
 
     public int getValue(){

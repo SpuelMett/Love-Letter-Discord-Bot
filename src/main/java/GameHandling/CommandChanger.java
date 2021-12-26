@@ -6,7 +6,7 @@ public class CommandChanger {
 
     //first word in line is the command
     private static final String[] join
-            = {"join","play", "participate"};
+            = {"join", "participate"};
     private static final String[] leave
             = {"leave"};
     private static final String[] score
@@ -15,6 +15,8 @@ public class CommandChanger {
             = {"start"};
     private static final String[] play
             = {"play"};
+    private static final String[] cardcount
+            = {"cardcount"};
 
     /**
      * Converts the first word to the right command word.
@@ -26,7 +28,8 @@ public class CommandChanger {
         if(Arrays.asList(leave).contains(input)) return "leave";
         if(Arrays.asList(score).contains(input)) return "score";
         if(Arrays.asList(start).contains(input)) return "start";
-        if(Arrays.asList(start).contains(input)) return "play";
+        if(Arrays.asList(play).contains(input)) return "play";
+        if(Arrays.asList(play).contains(input)) return "play";
 
         //default
         return null;

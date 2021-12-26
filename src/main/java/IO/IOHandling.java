@@ -30,14 +30,13 @@ public class IOHandling extends ListenerAdapter {
         //, GatewayIntent.GUILD_MESSAGES
         JDABuilder.createLight(args[0])
                 .addEventListeners(new IOHandling())
-                .setActivity(Activity.playing("Text Adventure"))
+                .setActivity(Activity.playing("Love Letter"))
                 .build();
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event){
         Message msg = event.getMessage();
-        System.out.println("test");
 
         if(msg.getContentRaw().startsWith("!!")){
             //if from server:

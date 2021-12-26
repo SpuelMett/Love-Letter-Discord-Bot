@@ -8,13 +8,12 @@ import java.util.Stack;
 
 public class Stapel {
 
-    Stack<ICard> cardStack;
+    private Stack<ICard> cardStack;
 
     public Stapel(){
         cardStack = new Stack<>();
 
-        //ArrayList<ICard> cardArrayList = new ArrayList<>();
-        ICard[] cards = new ICard[9];
+        ICard[] cards = new ICard[16];
 
         cards[0] = new CardGuard();
         cards[1] = new CardGuard();
@@ -27,6 +26,16 @@ public class Stapel {
 
         cards[7] = new CardBaron();
         cards[8] = new CardBaron();
+
+        cards[9] = new CardHandmaid();
+        cards[10] = new CardHandmaid();
+
+        cards[11] = new CardPrince();
+        cards[12] = new CardPrince();
+
+        cards[13] = new CardKing();
+        cards[14] = new CardCountess();
+        cards[15] = new CardPrincess();
 
         createStack(mix(cards));
     }
@@ -58,5 +67,9 @@ public class Stapel {
 
     public ICard drawCard(){
         return cardStack.pop();
+    }
+
+    public boolean isEmpty(){
+        return cardStack.isEmpty();
     }
 }

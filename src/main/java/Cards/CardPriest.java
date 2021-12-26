@@ -2,6 +2,7 @@ package Cards;
 
 import CoreGame.Game;
 import CoreGame.Player;
+import GameHandling.Command;
 import IO.PrivateMessanger;
 
 public class CardPriest implements ICard{
@@ -9,6 +10,7 @@ public class CardPriest implements ICard{
     private int value = 2;
     private String name = "Priest";
     private boolean isPlayOnPlayer = true;
+    private boolean needsFourthWord = false;
 
     public CardPriest(){
 
@@ -17,7 +19,7 @@ public class CardPriest implements ICard{
     /**
      * CoreGame.Player can look up a Card
      */
-    public String action(Player fromPlayer, Player onPlayer, Game game){
+    public String action(Player fromPlayer, Player onPlayer, Game game, Command command){
         //get
         ICard card = onPlayer.getCard();
 
@@ -28,6 +30,9 @@ public class CardPriest implements ICard{
         PrivateMessanger pm = new PrivateMessanger();
         pm.sendPrivateMessage(fromPlayer.getUser(), content);
 
+        //remove played card from fromPlayer
+        fromPlayer.removeCard(this);
+
         return fromPlayer.getName() + " looked at " + onPlayer.getName() + " card.";
     }
 
@@ -35,9 +40,15 @@ public class CardPriest implements ICard{
         return value;
     }
     public String getName(){
+        return name;
+    }
+    public String getDescription(){
         return name + ": " + value;
     }
     public boolean isPlayOnPlayer(){
         return isPlayOnPlayer;
+    }
+    public boolean isNeedsFourthWord(){
+        return needsFourthWord;
     }
 }

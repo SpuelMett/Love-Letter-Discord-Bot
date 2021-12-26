@@ -11,34 +11,24 @@ public class Player {
     private ICard secondCard;
     private String name;
     private User user;
+    private boolean isProtected;
 
     public Player(String name, User user){
         this.name = name;
         this.user = user;
+        isProtected = false;
     }
 
     public void giveCard(ICard card){
+        PrivateMessanger privateMessanger = new PrivateMessanger();
         if(mainCard == null){
             mainCard = card;
+            privateMessanger.sendCard(this, card);
         }
         else if(secondCard == null){
             secondCard = card;
+            privateMessanger.sendCardSelection(this, mainCard, secondCard);
         }
-        //send privateMessageToShowCard
-        PrivateMessanger privateMessanger = new PrivateMessanger();
-        privateMessanger.sendCard(this, card);
-    }
-
-    /**
-     * Ask the player which card to play
-     */
-    public void askToPlay(){
-        //private Message with options
-    }
-
-    public void playCard(boolean main){
-        if(main) mainCard.action();
-        else secondCard.action();
     }
 
     public ICard getCard(){
@@ -59,12 +49,56 @@ public class Player {
      * @return
      */
     public ICard getCardToPlay(String cardName){
-        if(mainCard.getName().equals(cardName)){
+        removeProtected();
+        if(mainCard.getName().toLowerCase().equals(cardName)){
             return mainCard;
         }
-        if(secondCard.getName().equals(cardName)){
+        else if(secondCard.getName().toLowerCase().equals(cardName)){
             return secondCard;
         }
         else return null;
+    }
+
+    public void removeCard(ICard card){
+        if(mainCard.equals(card)){
+            mainCard = secondCard;
+            secondCard = null;
+        }
+        else if(secondCard.equals(card)){
+            secondCard = null;
+        }
+    }
+
+    /**
+     * Player drops its card.
+     * Used when attacked by Princess.
+     * @return
+     */
+    public String dropCard(){
+        String result = "";
+        if(mainCard.getName().equals("Princess")){
+            result = name + " dropped the princess and was eliminated.";
+        }
+        else{
+            result = name + " dropped a " + mainCard.getName() + ".";
+        }
+        mainCard = null;
+        return result;
+    }
+
+    public void setProtected(){
+        isProtected = true;
+    }
+    public void removeProtected(){
+        isProtected = false;
+    }
+    public boolean isProtected(){
+        return isProtected;
+    }
+
+    public void reset(){
+        mainCard = null;
+        secondCard = null;
+        isProtected = false;
     }
 }

@@ -10,7 +10,7 @@ public class PrivateMessanger {
 
     }
     public void sendCard(Player player, ICard card){
-        sendPrivateMessage(player.getUser(), card.getName());
+        sendPrivateMessage(player.getUser(), card.getDescription());
     }
 
     public void sendPrivateMessage(User user, String content) {
@@ -20,5 +20,9 @@ public class PrivateMessanger {
         {
             channel.sendMessage(content).queue();
         });
+    }
+    public void sendCardSelection(Player player, ICard card1, ICard card2){
+        String content = "Your two cards are: " + card1.getDescription() + " and " + card2.getDescription();
+        sendPrivateMessage(player.getUser(), content);
     }
 }

@@ -26,19 +26,24 @@ public class TotalGame {
     }
 
     /**
-     * Starts a round of love Lette.
+     * Starts a round of love-Letter.
      * @return
      */
     public String startGame(){
-        Queue<Player> playerQueue = new LinkedList<>();
-        for(Player player:playerList.values()){
-            playerQueue.add(player);
-        }
-        game = new Game(playerQueue);
-        isRoundRunning = true;
-        isStarted = true;
+        if(!isStarted){
+            Queue<Player> playerQueue = new LinkedList<>();
+            for(Player player:playerList.values()){
+                playerQueue.add(player);
+            }
+            game = new Game(playerQueue);
+            isRoundRunning = true;
+            isStarted = true;
 
-        return game.firstTurn();
+            return game.firstTurn();
+        }
+        else return "The game is already running.";
+
+
     }
 
     public String addPlayer(User user, String name){
@@ -56,26 +61,44 @@ public class TotalGame {
     }
     public String removePlayer(Player player){
         if(!isStarted) {
-            playerList.remove(player);
+            playerList.remove(player.getUser());
             scoreList.remove(player);
 
             //check if player was the host
             if(hostPlayer.equals(player)){
                 //needs to do something!!
-                return "";
+                return "You were the host. Now we have a problem :(";
             }
             else return player.getName() + " is not participating anymore.";
         }
         else {
-            return "The game is already running";
+            return "The game is already running. You cant leave.";
         }
     }
 
+    /**
+     * Adds the score to a player.
+     * @param player
+     */
     public void addScore(Player player){
         int currentScore = scoreList.get(player);
         currentScore++;
+        scoreList.replace(player, currentScore);
         if(currentScore >= maxRounds){
             //end the game
+        }
+
+        //Reset gamestarted
+        reset();
+    }
+
+    private void reset(){
+        isRoundRunning = false;
+        isStarted = false;
+
+        //reset all player
+        for(Player player:playerList.values()){
+            player.reset();
         }
     }
 
@@ -92,8 +115,29 @@ public class TotalGame {
     public Player getPlayer(User user) {
         return playerList.get(user);
     }
+
+    /**
+     * Run the card play and check if game is over
+     * @param player
+     * @param command
+     * @return
+     */
     public String playCard(Player player, Command command){
-        if(isRoundRunning == false) return "The Round is not running!";
-        return game.playCard(player, command);
+        if(isRoundRunning == false) return "The Round is not running! Type 'start' to start the game.";
+
+        //run the play
+        String result = game.playCard(player, command);
+
+        //check if game is over
+        if(game.isFinished()){
+            result += "\n" + "The round is over. The winner is ";
+            ArrayList<Player> winnerList = game.calcWinners();
+            for(Player winner:winnerList){
+                result += winner.getName() + "\n";
+                addScore(winner);
+            }
+        }
+        return result;
+
     }
 }
