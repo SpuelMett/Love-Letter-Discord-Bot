@@ -1,25 +1,32 @@
 package CoreGame;
 
 import Cards.ICard;
+import IO.PrivateMessanger;
+import net.dv8tion.jda.api.entities.User;
 
 public class Player {
 
 
     private ICard mainCard;
     private ICard secondCard;
+    private String name;
+    private User user;
 
-    public Player(){
-
+    public Player(String name, User user){
+        this.name = name;
+        this.user = user;
     }
 
-    public void drawCard(Stapel stapel){
+    public void giveCard(ICard card){
         if(mainCard == null){
-            mainCard = stapel.drawCard();
+            mainCard = card;
         }
         else if(secondCard == null){
-            ICard newCard = stapel.drawCard();
-            secondCard = newCard;
+            secondCard = card;
         }
+        //send privateMessageToShowCard
+        PrivateMessanger privateMessanger = new PrivateMessanger();
+        privateMessanger.sendCard(this, card);
     }
 
     /**
@@ -36,5 +43,28 @@ public class Player {
 
     public ICard getCard(){
         return mainCard;
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public User getUser(){
+        return user;
+    }
+
+    /**
+     * Returns the card the player wants to play
+     * @param cardName
+     * @return
+     */
+    public ICard getCardToPlay(String cardName){
+        if(mainCard.getName().equals(cardName)){
+            return mainCard;
+        }
+        if(secondCard.getName().equals(cardName)){
+            return secondCard;
+        }
+        else return null;
     }
 }

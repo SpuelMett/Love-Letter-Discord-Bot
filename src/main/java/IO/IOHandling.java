@@ -4,9 +4,12 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.RestAction;
+
 import javax.security.auth.login.LoginException;
 
 
@@ -24,7 +27,8 @@ public class IOHandling extends ListenerAdapter {
             System.exit(1);
         }
 
-        JDABuilder.createLight(args[0], GatewayIntent.GUILD_MESSAGES)
+        //, GatewayIntent.GUILD_MESSAGES
+        JDABuilder.createLight(args[0])
                 .addEventListeners(new IOHandling())
                 .setActivity(Activity.playing("Text Adventure"))
                 .build();
@@ -33,16 +37,29 @@ public class IOHandling extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event){
         Message msg = event.getMessage();
+        System.out.println("test");
 
         if(msg.getContentRaw().startsWith("!!")){
-            MessageChannel channel = event.getChannel();
+            //if from server:
+            if(event.isFromGuild()){
+                MessageChannel channel = event.getChannel();
 
-            //Give message to inputHandler
-            String output = inputHandler.handleInput(msg);
+                //Give message to inputHandler
+                String output = inputHandler.handleInput(msg);
 
-            channel.sendMessage(output).queue();
+                channel.sendMessage(output).queue();
+            }
+            //if from private message
+            else{
+                //event.getPrivateChannel().sendMessage("Spiel");
+                //event.getAuthor().openPrivateChannel().queue();
+                String output = inputHandler.handlePrivateInput(msg);
+                event.getChannel().sendMessage("Du hast das Spiel verloren xD").queue();
+            }
+
         }
     }
+
 
     public void shutDown(){
 

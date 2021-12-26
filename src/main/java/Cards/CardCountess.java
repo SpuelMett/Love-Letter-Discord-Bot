@@ -3,18 +3,18 @@ package Cards;
 import CoreGame.Game;
 import CoreGame.Player;
 
-public class CardGuard implements ICard{
+public class CardCountess implements ICard {
 
-    private int value = 1;
-    private String name = "Guard";
-    private boolean isPlayOnPlayer = true;
+    private int value = 7;
+    private String name = "Countess";
+    private boolean isPlayOnPlayer = false;
 
-    public CardGuard(){
+    public CardCountess(){
 
     }
 
     /**
-     * CoreGame.Player can guess a card
+     * CoreGame.Player can compare a card
      */
     public String action(Player fromPlayer, Player onPlayer, Game game){
         return "";
