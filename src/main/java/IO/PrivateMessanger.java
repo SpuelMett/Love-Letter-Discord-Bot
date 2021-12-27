@@ -2,7 +2,11 @@ package IO;
 
 import Cards.ICard;
 import CoreGame.Player;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.requests.RestAction;
+
+import java.util.concurrent.TimeUnit;
+
 
 public class PrivateMessanger {
 
@@ -11,18 +15,35 @@ public class PrivateMessanger {
     }
     public void sendCard(Player player, ICard card){
         sendPrivateMessage(player.getUser(), card.getDescription());
+
     }
 
-    public void sendPrivateMessage(User user, String content) {
-        // openPrivateChannel provides a RestAction<PrivateChannel>
-        // which means it supplies you with the resulting channel
-        user.openPrivateChannel().queue((channel) ->
-        {
-            channel.sendMessage(content).queue();
-        });
+    /**
+     * Send a private message to the player. Returns the Message Object to be used later.
+     * @param user
+     * @param content
+     * @return
+     */
+    public Message sendPrivateMessage(User user, String content) {
+        RestAction<PrivateChannel> privateChannelRestAction = user.openPrivateChannel();
+        PrivateChannel privateChannel = privateChannelRestAction.complete();
+
+        return privateChannel.sendMessage(content).complete();
     }
+
+    /**
+     * Sends the player both cards that the player can select. Adds a reaction to be used.
+     * @param player
+     * @param card1
+     * @param card2
+     */
     public void sendCardSelection(Player player, ICard card1, ICard card2){
-        String content = "Your two cards are: " + card1.getDescription() + " and " + card2.getDescription();
-        sendPrivateMessage(player.getUser(), content);
+        String content = "Your two cards are: " + "\n " + "1: " +  card1.getDescription() + "\n " + "2: " + card2.getDescription();
+        Message message = sendPrivateMessage(player.getUser(), content);
+        addReaction(message);
+    }
+    public void addReaction(Message message){
+         message.addReaction("1️⃣").queue();
+        message.addReaction("2️⃣").queue();
     }
 }

@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -57,6 +58,14 @@ public class IOHandling extends ListenerAdapter {
             }
 
         }
+    }
+
+    @Override
+    public void onMessageReactionAdd(MessageReactionAddEvent event){
+        //Long id = event.getReaction().getReactionEmote().getIdLong();
+        //String name = event.getReaction().getReactionEmote().getEmote().getId();
+        String name = event.getReactionEmote().getEmoji();
+        System.out.println(name);
     }
 
 
