@@ -19,6 +19,9 @@ public class CardCountess implements ICard {
      * CoreGame.Player can compare a card
      */
     public String action(Player fromPlayer, Player onPlayer, Game game, Command command){
+        //remove played card from fromPlayer
+        fromPlayer.removeCard(this);
+
         return fromPlayer.getName() + " played the Countess.";
     }
 
@@ -29,7 +32,7 @@ public class CardCountess implements ICard {
         return name;
     }
     public String getDescription(){
-        return name + ": " + value;
+        return name + " (" + value + ")";
     }
     public boolean isPlayOnPlayer(){
         return isPlayOnPlayer;

@@ -4,16 +4,12 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.requests.RestAction;
+
 
 import javax.security.auth.login.LoginException;
-
-
 
 
 public class IOHandling extends ListenerAdapter {
@@ -62,10 +58,25 @@ public class IOHandling extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event){
-        //Long id = event.getReaction().getReactionEmote().getIdLong();
-        //String name = event.getReaction().getReactionEmote().getEmote().getId();
-        String name = event.getReactionEmote().getEmoji();
-        System.out.println(name);
+        //check if the reaction was made by a bot (this bot)
+        if(event.getUser().isBot()) System.out.println("Bot reaction");
+        else{
+            if(event.isFromGuild()){
+                inputHandler.handlePublicReaction(event);
+            }
+            //From Private message -> playing a card
+            else{
+                String content = inputHandler.handlePrivateReaction(event);
+                if(!content.equals("")){
+                    event.getChannel().sendMessage(content).queue();
+                }
+            }
+
+            String name = event.getReactionEmote().getEmoji();
+            System.out.println(name);
+        }
+
+
     }
 
 

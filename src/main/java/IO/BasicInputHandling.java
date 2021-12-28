@@ -10,6 +10,7 @@ import GameHandling.Parser;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import java.util.Locale;
 
@@ -44,6 +45,7 @@ public class BasicInputHandling {
     }
 
 
+
     /**
      * Handles the input Message. Checks server and Player and redirects command to the command handler. Returns the answer.
      * @param msg
@@ -70,7 +72,9 @@ public class BasicInputHandling {
                 User hostUser = msg.getAuthor();
 
                 gameHandler.addGame(guild);
+
                 currentGame = gameHandler.getGame(guild);
+                currentGame.setChannel(msg.getChannel());
                 currentGame.addHostPlayer(hostUser, hostPlayerName);
                 return "You created a new Game on this server and joined as the host.";
             }
@@ -103,6 +107,58 @@ public class BasicInputHandling {
                 return result;
             }
         }
+    }
+
+    /**
+     * Returns the private Message
+     * @param event
+     * @return
+     */
+    public String handlePrivateReaction(MessageReactionAddEvent event){
+        //check if any Game exists with this server
+        User user = event.getUser();
+        TotalGame currentGame = gameHandler.findPlayer(user);
+        if(currentGame == null){
+            return "You don't play this game.";
+        }
+        else{
+            Player player = currentGame.getPlayer(user);
+            String name = event.getReactionEmote().getEmoji();
+            int nr = emojiToInt(name);
+            if(nr == 0) return "This is not a valid reaction!";
+
+            currentGame.reactionPlayCard(player, nr);
+            return "";
+        }
+    }
+    public void handlePublicReaction(MessageReactionAddEvent event){
+        System.out.println("Test3");
+        User user = event.getUser();
+        TotalGame currentGame = gameHandler.findPlayer(user);
+        if(currentGame == null){
+            //do nothing
+            System.out.println("Test4");
+        }
+        else{
+            Player player = currentGame.getPlayer(user);
+            String name = event.getReactionEmote().getEmoji();
+            int nr = emojiToInt(name);
+            if(nr == 0) return;
+
+            currentGame.reactionAnyCard(player, nr);
+        }
+    }
+
+    private int emojiToInt(String emoji){
+        if(emoji.equals("1️⃣")) return 1;
+        if(emoji.equals("2️⃣")) return 2;
+        if(emoji.equals("3️⃣")) return 3;
+        if(emoji.equals("4️⃣")) return 4;
+        if(emoji.equals("5️⃣")) return 5;
+        if(emoji.equals("6️⃣")) return 6;
+        if(emoji.equals("7️⃣")) return 7;
+        if(emoji.equals("8️⃣")) return 8;
+        return 0;
     }
 
     private Player getPlayer(Message msg, TotalGame currentGame){

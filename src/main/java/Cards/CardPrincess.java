@@ -30,7 +30,7 @@ public class CardPrincess implements ICard{
         return name;
     }
     public String getDescription(){
-        return name + ": " + value;
+        return name + " (" + value + ")";
     }
     public boolean isPlayOnPlayer(){
         return isPlayOnPlayer;

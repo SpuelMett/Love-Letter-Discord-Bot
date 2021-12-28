@@ -43,6 +43,13 @@ public class Player {
         return user;
     }
 
+    public ICard getMainCard(){
+        return mainCard;
+    }
+    public ICard getSecondCard(){
+        return secondCard;
+    }
+
     /**
      * Returns the card the player wants to play
      * @param cardName

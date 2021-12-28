@@ -5,7 +5,6 @@ import CoreGame.Player;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.RestAction;
 
-import java.util.concurrent.TimeUnit;
 
 
 public class PrivateMessanger {
@@ -15,7 +14,6 @@ public class PrivateMessanger {
     }
     public void sendCard(Player player, ICard card){
         sendPrivateMessage(player.getUser(), card.getDescription());
-
     }
 
     /**
@@ -43,7 +41,7 @@ public class PrivateMessanger {
         addReaction(message);
     }
     public void addReaction(Message message){
-         message.addReaction("1️⃣").queue();
+        message.addReaction("1️⃣").queue();
         message.addReaction("2️⃣").queue();
     }
 }

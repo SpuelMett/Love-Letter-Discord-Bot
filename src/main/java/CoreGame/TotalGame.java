@@ -1,6 +1,8 @@
 package CoreGame;
 
 import GameHandling.Command;
+import net.dv8tion.jda.api.entities.Invite;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.*;
@@ -14,11 +16,20 @@ public class TotalGame {
     private boolean isRoundRunning;
     private Game game;
     private Player hostPlayer;
+    private MessageChannel channel;
+
+
 
     public TotalGame(){
         playerList = new HashMap<>();
         scoreList = new HashMap<>();
         isStarted = false;
+    }
+    public MessageChannel getChannel() {
+        return channel;
+    }
+    public void setChannel(MessageChannel channel){
+        this.channel = channel;
     }
 
     public void startTotalGame(){
@@ -139,5 +150,25 @@ public class TotalGame {
         }
         return result;
 
+    }
+
+    /**
+     * Return the private Message
+     * @param player
+     * @param nr
+     * @return
+     */
+    public String reactionPlayCard(Player player, int nr) {
+        if(isRoundRunning){
+            return game.reactionPlayCard(player, nr, channel);
+        }
+        else return "The round is not running.";
+    }
+    public void reactionAnyCard(Player player, int nr){
+        System.out.println("Test2");
+        if(isRoundRunning){
+            game.reactionPublic(player, nr, channel);
+        }
+        //else  "The round is not running.";
     }
 }

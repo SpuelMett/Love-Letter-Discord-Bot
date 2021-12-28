@@ -2,15 +2,17 @@ package CoreGame;
 
 import Cards.ICard;
 import GameHandling.Command;
+import IO.PrivateMessanger;
+import IO.PublicMessanger;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Queue;
+import java.util.*;
 
 public class Game {
 
     //currentPlayer is still in playerQueue
     private Player currentPlayer;
+    private PlayCard playCard;
     private Queue<Player> playerQueue;
     private Stapel stapel;
 
@@ -39,8 +41,13 @@ public class Game {
         //nextTurn();
     }
 
+    public List<Player> getPlayerList(){
+        return playerQueue.stream().toList();
+    }
+
     public String firstTurn(){
         currentPlayer = playerQueue.peek();
+        playCard = new PlayCard(currentPlayer, this);
         String output = "Everyone got their cards!" + "\n" +  currentPlayer.getName() +  " is on turn.";
         askForAction();
         return output;
@@ -56,6 +63,7 @@ public class Game {
         }
         //select new currentPlayer
         currentPlayer = playerQueue.peek();
+        playCard = new PlayCard(currentPlayer, this);
 
         return askForAction();
         //return currentPlayer.getName() +  " is on turn.";
@@ -66,8 +74,11 @@ public class Game {
      * @return
      */
     public String askForAction(){
+        //give a second card to the player
         giveCard(currentPlayer);
-        return currentPlayer.getName() + " its your turn.";
+        //update playCard object
+        playCard.addBothCards();
+        return currentPlayer.getName() + " it is your turn.";
     }
 
     public boolean isCurrentPlayer(Player player){
@@ -81,12 +92,12 @@ public class Game {
         String result = "";
         if(currentPlayer.equals(player)){
             if(command.hasSecondWord() == false){
-                return "Please specify which card you want to play";
+                return "Please specify which card you want to play.";
             }
             else{
                 String cardName = command.getSecondWord();
                 ICard card = player.getCardToPlay(cardName);
-                if(card == null) return "You don't have this card!.";
+                if(card == null) return "You don't have this card!";
 
                 //check if card needs to be played on a player
                 if(card.isPlayOnPlayer() == true){
@@ -180,6 +191,7 @@ public class Game {
             case "baron":
             case "handmaid":
             case "prince":
+            case "king":
             case "countess":
             case "princess":
                 valid = true;
@@ -189,4 +201,54 @@ public class Game {
         return valid;
     }
 
+
+    /**
+     * Return the private Message.
+     * @param player
+     * @param cardNr
+     * @param channel is the public messageChannel
+     * @return private Message
+     */
+    public String reactionPlayCard(Player player, int cardNr, MessageChannel channel){
+        //check if player is the current player
+        if(!player.equals(currentPlayer)) return "Its not your turn.";
+
+        //update playCard
+        playCard.selectPlayingCard(cardNr, channel);
+
+        //check if playCard is finished. If yes
+        if(playCard.isFinished()){
+            //Next turn
+            String result = playCard.action() + "\n";
+            result += nextTurn();
+
+            //send result to public channel
+            PublicMessanger publicMessanger = new PublicMessanger();
+            publicMessanger.sendPublicMessage(channel, result);
+        }
+
+        else{
+            //if not finished
+
+        }
+        return "";
+    }
+    public void reactionPublic(Player player, int nr, MessageChannel channel){
+        if(!player.equals(currentPlayer)) return; //"Its not your turn.";
+
+        //update playCard
+        playCard.selectAny(nr, channel);
+        System.out.println("Test");
+
+        //check if playCard is finished. If yes
+        if(playCard.isFinished()){
+            //Next turn
+            String result = playCard.action() + "\n";
+            result += nextTurn();
+
+            //send result to public channel
+            PublicMessanger publicMessanger = new PublicMessanger();
+            publicMessanger.sendPublicMessage(channel, result);
+        }
+    }
 }
