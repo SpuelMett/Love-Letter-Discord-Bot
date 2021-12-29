@@ -2,7 +2,6 @@ package CoreGame;
 
 import Cards.ICard;
 import GameHandling.Command;
-import IO.PrivateMessanger;
 import IO.PublicMessanger;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
@@ -209,38 +208,14 @@ public class Game {
      * @param channel is the public messageChannel
      * @return private Message
      */
-    public String reactionPlayCard(Player player, int cardNr, MessageChannel channel){
+    public void reactionResponse(Player player, int cardNr, MessageChannel channel){
         //check if player is the current player
-        if(!player.equals(currentPlayer)) return "Its not your turn.";
+        if(!player.equals(currentPlayer)) return; // "Its not your turn.";
 
         //update playCard
-        playCard.selectPlayingCard(cardNr, channel);
+        playCard.selectAny(cardNr, channel);
 
-        //check if playCard is finished. If yes
-        if(playCard.isFinished()){
-            //Next turn
-            String result = playCard.action() + "\n";
-            result += nextTurn();
-
-            //send result to public channel
-            PublicMessanger publicMessanger = new PublicMessanger();
-            publicMessanger.sendPublicMessage(channel, result);
-        }
-
-        else{
-            //if not finished
-
-        }
-        return "";
-    }
-    public void reactionPublic(Player player, int nr, MessageChannel channel){
-        if(!player.equals(currentPlayer)) return; //"Its not your turn.";
-
-        //update playCard
-        playCard.selectAny(nr, channel);
-        System.out.println("Test");
-
-        //check if playCard is finished. If yes
+        //check if playCard is finished. If yes ...
         if(playCard.isFinished()){
             //Next turn
             String result = playCard.action() + "\n";

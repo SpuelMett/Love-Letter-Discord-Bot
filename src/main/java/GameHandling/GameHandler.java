@@ -1,7 +1,5 @@
 package GameHandling;
 
-import CoreGame.Game;
-import CoreGame.Player;
 import CoreGame.TotalGame;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;

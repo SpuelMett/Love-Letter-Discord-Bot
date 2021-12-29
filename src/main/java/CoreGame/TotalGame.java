@@ -1,7 +1,6 @@
 package CoreGame;
 
 import GameHandling.Command;
-import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 
@@ -153,22 +152,14 @@ public class TotalGame {
     }
 
     /**
-     * Return the private Message
+     *
      * @param player
      * @param nr
      * @return
      */
-    public String reactionPlayCard(Player player, int nr) {
-        if(isRoundRunning){
-            return game.reactionPlayCard(player, nr, channel);
-        }
-        else return "The round is not running.";
+    public void reactionResponse(Player player, int nr) {
+        //only do something, when the round is running
+        if(isRoundRunning) game.reactionResponse(player, nr, channel);
     }
-    public void reactionAnyCard(Player player, int nr){
-        System.out.println("Test2");
-        if(isRoundRunning){
-            game.reactionPublic(player, nr, channel);
-        }
-        //else  "The round is not running.";
-    }
+
 }

@@ -1,6 +1,5 @@
 package IO;
 
-import CoreGame.Game;
 import CoreGame.Player;
 import CoreGame.TotalGame;
 import GameHandling.Command;
@@ -12,7 +11,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
-import java.util.Locale;
 
 
 public class BasicInputHandling {
@@ -114,39 +112,21 @@ public class BasicInputHandling {
      * @param event
      * @return
      */
-    public String handlePrivateReaction(MessageReactionAddEvent event){
+    public void handlePrivateReaction(MessageReactionAddEvent event){
         //check if any Game exists with this server
         User user = event.getUser();
         TotalGame currentGame = gameHandler.findPlayer(user);
-        if(currentGame == null){
-            return "You don't play this game.";
-        }
-        else{
-            Player player = currentGame.getPlayer(user);
-            String name = event.getReactionEmote().getEmoji();
-            int nr = emojiToInt(name);
-            if(nr == 0) return "This is not a valid reaction!";
 
-            currentGame.reactionPlayCard(player, nr);
-            return "";
-        }
-    }
-    public void handlePublicReaction(MessageReactionAddEvent event){
-        System.out.println("Test3");
-        User user = event.getUser();
-        TotalGame currentGame = gameHandler.findPlayer(user);
-        if(currentGame == null){
-            //do nothing
-            System.out.println("Test4");
-        }
-        else{
-            Player player = currentGame.getPlayer(user);
-            String name = event.getReactionEmote().getEmoji();
-            int nr = emojiToInt(name);
-            if(nr == 0) return;
+        //check if a game was found
+        if(currentGame == null) return; //Player doesnt play a game of Love Letter
 
-            currentGame.reactionAnyCard(player, nr);
-        }
+        //Get reaction and convert it to number
+        String name = event.getReactionEmote().getEmoji();
+        int nr = emojiToInt(name);
+        if(nr == 0) return; //This was not a valid reaction!
+
+        Player player = currentGame.getPlayer(user);
+        currentGame.reactionResponse(player, nr);
     }
 
     private int emojiToInt(String emoji){

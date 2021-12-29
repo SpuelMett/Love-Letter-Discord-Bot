@@ -47,9 +47,7 @@ public class IOHandling extends ListenerAdapter {
             }
             //if from private message
             else{
-                //event.getPrivateChannel().sendMessage("Spiel");
-                //event.getAuthor().openPrivateChannel().queue();
-                String output = inputHandler.handlePrivateInput(msg);
+                //String output = inputHandler.handlePrivateInput(msg);
                 event.getChannel().sendMessage("Du hast das Spiel verloren xD").queue();
             }
 
@@ -61,24 +59,22 @@ public class IOHandling extends ListenerAdapter {
         //check if the reaction was made by a bot (this bot)
         if(event.getUser().isBot()) System.out.println("Bot reaction");
         else{
-            if(event.isFromGuild()){
-                inputHandler.handlePublicReaction(event);
-            }
-            //From Private message -> playing a card
-            else{
-                String content = inputHandler.handlePrivateReaction(event);
-                if(!content.equals("")){
-                    event.getChannel().sendMessage(content).queue();
-                }
-            }
+            //only accept Reactions from private Messages
+            if(!event.isFromGuild()){
 
-            String name = event.getReactionEmote().getEmoji();
-            System.out.println(name);
+                //Message message = event.getChannel().sendMessage("").complete();
+                /*
+                event.getChannel().sendMessage("").queue(response -> {
+                    //
+                    inputHandler.handlePrivateReaction(response);
+
+                });
+                */
+
+               inputHandler.handlePrivateReaction(event);
+            }
         }
-
-
     }
-
 
     public void shutDown(){
 

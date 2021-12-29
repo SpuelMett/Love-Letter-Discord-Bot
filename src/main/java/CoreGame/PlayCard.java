@@ -3,6 +3,7 @@ package CoreGame;
 import Cards.ICard;
 import GameHandling.Command;
 import GameHandling.Parser;
+import IO.PrivateMessanger;
 import IO.PublicMessanger;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -40,27 +41,15 @@ public class PlayCard {
      * @param cardNr
      * @return Returns the String that is shown in the private chat.
      */
-    public String selectPlayingCard(int cardNr, MessageChannel channel){
-        if(cardNr == 1) {
-            playingCard = card1;
-        }
-        else if(cardNr == 2) {
-            playingCard = card2;
-        }
-        else{
-            return "This is not a playable card!";
-        }
+    public void selectPlayingCard(int cardNr, MessageChannel channel){
+        //Select the card
+        if(cardNr == 1) playingCard = card1;
+        else if(cardNr == 2) playingCard = card2;
+        else return; // "This is not a playable card!";
 
         //checks if card needs a player to be played on
-        if(!playingCard.isPlayOnPlayer()){
-            //playCard is finished
-            isFinished = true;
-            return "";
-        }
-        else{
-            askForOnPlayer(channel);
-            return "Please pick a player in the public chat.";
-        }
+        if(!playingCard.isPlayOnPlayer()) isFinished = true;
+        else askForOnPlayer(channel);
     }
 
     /**
@@ -68,7 +57,6 @@ public class PlayCard {
      * @return public Message String
      */
     public String action(){
-        String playResult = "";
         Command command;
         if(onPlayer == null){
             //simple card without onPlayer
@@ -76,20 +64,21 @@ public class PlayCard {
         }
         else if(guess == null){
             //card with onPlayer but without a guess
-            command = createCommand("play " + playingCard.getName().toLowerCase() + onPlayer.getName().toLowerCase());
+            command = createCommand("play " + playingCard.getName().toLowerCase() + " " +  onPlayer.getName().toLowerCase());
         }
         else{
             //complex card (guard) with a guess
-            command = createCommand("play " + playingCard.getName().toLowerCase() + onPlayer.getName().toLowerCase() + guess);
+            command = createCommand("play " + playingCard.getName().toLowerCase() + " " + onPlayer.getName().toLowerCase() + " " + guess);
         }
-        //playResult = fromPlayer.getName() + " played a " + playingCard.getName() + ".";
+        String playResult = fromPlayer.getName() + " played a " + playingCard.getName() + "." + "\n";
         playResult += playingCard.action(fromPlayer, onPlayer, game, command);
         return playResult;
     }
 
     public void selectAny(int nr, MessageChannel channel){
-        if(onPlayer == null) selectOnPlayer(nr, channel);
-        if(guess == null) selectGuess(nr, channel);
+        if(playingCard == null) selectPlayingCard(nr, channel);
+        else if(onPlayer == null) selectOnPlayer(nr, channel);
+        else if(guess == null) selectGuess(nr, channel);
     }
 
     /**
@@ -117,9 +106,8 @@ public class PlayCard {
                 askForFourthWord(channel);
             }
         }
-
-
     }
+
     public void selectGuess(int nr, MessageChannel channel){
         if(nr < 1 || nr > 7){
             //wrong number
@@ -152,25 +140,27 @@ public class PlayCard {
      * @param channel
      */
     public void askForOnPlayer(MessageChannel channel){
-        String result = fromPlayer.getName() + " plays a " + playingCard.getName() + "." + "\n";
+        String result = "You are playing the " + playingCard.getName() + "." + "\n";
         result += "Please select a player: " + "\n";
 
         //get all playable player
         onPlayerList =  game.getPlayerList();
 
-        //Iterate over Playerlist
-        int counter = 0;
-        for(Player player:onPlayerList){
-            if(!player.isProtected()){
-                counter++;
-                result += counter + ": " + player.getName() + "\n";
+        //Iterate over Playerlist: add player or delete protected player
+        int i = 0;
+        while (i < onPlayerList.size()){
+            Player player = onPlayerList.get(i);
+            if(player.isProtected()) onPlayerList.remove(i);
+            else{
+                i++;
+                result += i + ": " + player.getName() + "\n";
             }
         }
 
         //make a new message
-        PublicMessanger publicMessanger = new PublicMessanger();
-        Message message = publicMessanger.sendPublicMessage(channel, result);
-        publicMessanger.addReaction(message, counter);
+        PrivateMessanger pm = new PrivateMessanger();
+        Message message = pm.sendPrivateMessage(fromPlayer.getUser(), result);
+        pm.addReaction(message, i);
     }
 
     public void askForFourthWord(MessageChannel channel){
@@ -185,9 +175,9 @@ public class PlayCard {
         result += "6: Countess (7)" + "\n";
         result += "7: Princess (8)" + "\n";
 
-        PublicMessanger publicMessanger = new PublicMessanger();
-        Message message = publicMessanger.sendPublicMessage(channel, result);
-        publicMessanger.addReaction(message, 7);
+        PrivateMessanger pm = new PrivateMessanger();
+        Message message = pm.sendPrivateMessage(fromPlayer.getUser(), result);
+        pm.addReaction(message, 7);
     }
 
     public boolean isFinished(){
