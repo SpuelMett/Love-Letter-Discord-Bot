@@ -13,6 +13,7 @@ public class TotalGame {
     private static final int maxRounds = 4;
     private boolean isStarted;
     private boolean isRoundRunning;
+    private boolean isFinished;
     private Game game;
     private Player hostPlayer;
     private MessageChannel channel;
@@ -23,6 +24,7 @@ public class TotalGame {
         playerList = new HashMap<>();
         scoreList = new HashMap<>();
         isStarted = false;
+        isFinished = false;
     }
     public MessageChannel getChannel() {
         return channel;
@@ -41,10 +43,7 @@ public class TotalGame {
      */
     public String startGame(){
         if(!isStarted){
-            Queue<Player> playerQueue = new LinkedList<>();
-            for(Player player:playerList.values()){
-                playerQueue.add(player);
-            }
+            Queue<Player> playerQueue = new LinkedList<>(playerList.values());
             game = new Game(playerQueue);
             isRoundRunning = true;
             isStarted = true;
@@ -52,8 +51,6 @@ public class TotalGame {
             return game.firstTurn();
         }
         else return "The game is already running.";
-
-
     }
 
     public String addPlayer(User user, String name){
@@ -65,10 +62,12 @@ public class TotalGame {
         }
         else return "The game is already running";
     }
+
     public void addHostPlayer(User user, String name){
         addPlayer(user, name);
         hostPlayer = playerList.get(user);
     }
+
     public String removePlayer(Player player){
         if(!isStarted) {
             playerList.remove(player.getUser());
@@ -96,9 +95,10 @@ public class TotalGame {
         scoreList.replace(player, currentScore);
         if(currentScore >= maxRounds){
             //end the game
+            isFinished = true;
         }
 
-        //Reset gamestarted
+        //Reset values and objects
         reset();
     }
 
@@ -133,33 +133,34 @@ public class TotalGame {
      * @return
      */
     public String playCard(Player player, Command command){
-        if(isRoundRunning == false) return "The Round is not running! Type 'start' to start the game.";
+        if(!isRoundRunning) return "The Round is not running! Type 'start' to start the game.";
 
         //run the play
-        String result = game.playCard(player, command);
+        StringBuilder result = new StringBuilder(game.playCard(player, command));
 
         //check if game is over
         if(game.isFinished()){
-            result += "\n" + "The round is over. The winner is ";
+            result.append("\n" + "The round is over. The winner is ");
             ArrayList<Player> winnerList = game.calcWinners();
             for(Player winner:winnerList){
-                result += winner.getName() + "\n";
+                result.append(winner.getName()).append("\n");
                 addScore(winner);
             }
         }
-        return result;
-
+        return result.toString();
     }
 
     /**
      *
      * @param player
      * @param nr
-     * @return
      */
     public void reactionResponse(Player player, int nr) {
         //only do something, when the round is running
         if(isRoundRunning) game.reactionResponse(player, nr, channel);
     }
 
+    public boolean isFinished(){
+        return isFinished;
+    }
 }

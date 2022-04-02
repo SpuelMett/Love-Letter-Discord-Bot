@@ -3,7 +3,7 @@ package Cards;
 import CoreGame.Game;
 import CoreGame.Player;
 import GameHandling.Command;
-import IO.PrivateMessanger;
+import IO.PrivateMessenger;
 
 public class CardPriest implements ICard{
 
@@ -27,7 +27,7 @@ public class CardPriest implements ICard{
         String content = onPlayer.getName() + " has a " + card.getName();
 
         //private Message to from Player
-        PrivateMessanger pm = new PrivateMessanger();
+        PrivateMessenger pm = new PrivateMessenger();
         pm.sendPrivateMessage(fromPlayer.getUser(), content);
 
         //remove played card from fromPlayer

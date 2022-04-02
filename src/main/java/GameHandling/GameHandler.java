@@ -12,7 +12,7 @@ public class GameHandler {
     private HashMap<String, TotalGame> gameList;
 
     public GameHandler(){
-        gameList = new HashMap<String, TotalGame>();
+        gameList = new HashMap<>();
     }
 
     public void addGame(Guild server){
@@ -26,7 +26,8 @@ public class GameHandler {
     }
 
     public void deleteGame(Guild server){
-        gameList.remove(server);
+        String serverID = server.getId();
+        gameList.remove(serverID);
     }
 
     public TotalGame findPlayer(User user){

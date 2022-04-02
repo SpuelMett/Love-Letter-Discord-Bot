@@ -2,10 +2,11 @@ package CoreGame;
 
 import Cards.ICard;
 import GameHandling.Command;
-import IO.PublicMessanger;
+import IO.PublicMessenger;
 import net.dv8tion.jda.api.entities.MessageChannel;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 
 public class Game {
 
@@ -13,7 +14,7 @@ public class Game {
     private Player currentPlayer;
     private PlayCard playCard;
     private Queue<Player> playerQueue;
-    private Stapel stapel;
+    private final Stapel stapel;
 
 
     public Game(Queue<Player> playerQueue){
@@ -90,7 +91,7 @@ public class Game {
     public String playCard(Player player, Command command){
         String result = "";
         if(currentPlayer.equals(player)){
-            if(command.hasSecondWord() == false){
+            if(!command.hasSecondWord()){
                 return "Please specify which card you want to play.";
             }
             else{
@@ -99,7 +100,7 @@ public class Game {
                 if(card == null) return "You don't have this card!";
 
                 //check if card needs to be played on a player
-                if(card.isPlayOnPlayer() == true){
+                if(card.isPlayOnPlayer()){
                     if(command.getThirdWord() == null){
                         return "Please specify on which player you want to play.";
                     }
@@ -118,23 +119,30 @@ public class Game {
                             if(command.getFourthWord().toLowerCase().equals("guard")) return "You cant guess the guard!";
                         }
 
-                        //play
-                        result += card.action(currentPlayer, onPlayer, this, command);
-                        result += "\n";
-                        result += nextTurn();
+                        //play card
+                        result += makePlayCard(card, currentPlayer, onPlayer, command);
                         return result;
                     }
                 }
                 //Play card
                 else{
-                    result += card.action(currentPlayer, null, this, command);
-                    result += "\n";
-                    result += nextTurn();
+                    result += makePlayCard(card, currentPlayer, null, command);
                     return result;
                 }
             }
         }
         else return "Its not your turn.";
+    }
+
+    private String makePlayCard(ICard card,Player currentPlayer, Player onPlayer, Command command){
+        //Play the card
+        String result = card.action(currentPlayer, onPlayer, this, command);
+        //if not finished start the next turn
+        if(!isFinished()){
+            result += "\n";
+            result += nextTurn();
+        }
+        return result;
     }
 
     private Player getPlayerByName(String name){
@@ -145,7 +153,7 @@ public class Game {
     }
 
     public boolean isFinished(){
-        //ceck if only one player  is left
+        //check if only one player  is left
         if(playerQueue.size() < 2){
             return true;
         }
@@ -183,23 +191,11 @@ public class Game {
     }
 
     private boolean isValidCardName(String name){
-        boolean valid = false;
-        switch (name){
-            case "guard":
-            case "priest":
-            case "baron":
-            case "handmaid":
-            case "prince":
-            case "king":
-            case "countess":
-            case "princess":
-                valid = true;
-                break;
-            default: valid =  false;
-        }
-        return valid;
+        return switch (name) {
+            case "guard", "priest", "baron", "handmaid", "prince", "king", "countess", "princess" -> true;
+            default -> false;
+        };
     }
-
 
     /**
      * Return the private Message.
@@ -222,8 +218,8 @@ public class Game {
             result += nextTurn();
 
             //send result to public channel
-            PublicMessanger publicMessanger = new PublicMessanger();
-            publicMessanger.sendPublicMessage(channel, result);
+            PublicMessenger publicMessenger = new PublicMessenger();
+            publicMessenger.sendPublicMessage(channel, result);
         }
     }
 }

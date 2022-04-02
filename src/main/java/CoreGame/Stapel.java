@@ -2,12 +2,13 @@ package CoreGame;
 
 import Cards.*;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Stack;
 
 public class Stapel {
 
-    private Stack<ICard> cardStack;
+    private final Stack<ICard> cardStack;
 
     public Stapel(){
         cardStack = new Stack<>();
@@ -40,9 +41,7 @@ public class Stapel {
     }
 
     private void createStack(ICard[] cards){
-        for(ICard card:cards){
-            cardStack.add(card);
-        }
+        cardStack.addAll(Arrays.asList(cards));
     }
 
     private ICard[] mix(ICard[] cards){

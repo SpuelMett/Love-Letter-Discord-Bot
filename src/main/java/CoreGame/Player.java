@@ -1,7 +1,7 @@
 package CoreGame;
 
 import Cards.ICard;
-import IO.PrivateMessanger;
+import IO.PrivateMessenger;
 import net.dv8tion.jda.api.entities.User;
 
 public class Player {
@@ -9,8 +9,8 @@ public class Player {
 
     private ICard mainCard;
     private ICard secondCard;
-    private String name;
-    private User user;
+    private final String name;
+    private final User user;
     private boolean isProtected;
 
     public Player(String name, User user){
@@ -20,14 +20,14 @@ public class Player {
     }
 
     public void giveCard(ICard card){
-        PrivateMessanger privateMessanger = new PrivateMessanger();
+        PrivateMessenger privateMessenger = new PrivateMessenger();
         if(mainCard == null){
             mainCard = card;
-            privateMessanger.sendCard(this, card);
+            privateMessenger.sendCard(this, card);
         }
         else if(secondCard == null){
             secondCard = card;
-            privateMessanger.sendCardSelection(this, mainCard, secondCard);
+            privateMessenger.sendCardSelection(this, mainCard, secondCard);
         }
     }
 
@@ -82,7 +82,7 @@ public class Player {
      * @return
      */
     public String dropCard(){
-        String result = "";
+        String result;
         if(mainCard.getName().equals("Princess")){
             result = name + " dropped the princess and was eliminated.";
         }

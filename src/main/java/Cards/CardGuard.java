@@ -3,9 +3,6 @@ package Cards;
 import CoreGame.Game;
 import CoreGame.Player;
 import GameHandling.Command;
-import IO.PrivateMessanger;
-
-import java.util.Locale;
 
 public class CardGuard implements ICard{
 

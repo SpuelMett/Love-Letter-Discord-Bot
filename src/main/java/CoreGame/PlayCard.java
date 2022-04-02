@@ -3,18 +3,18 @@ package CoreGame;
 import Cards.ICard;
 import GameHandling.Command;
 import GameHandling.Parser;
-import IO.PrivateMessanger;
-import IO.PublicMessanger;
+import IO.PrivateMessenger;
+import IO.PublicMessenger;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class PlayCard {
 
-    private Game game;
+    private final Game game;
 
-    private Player fromPlayer;
+    private final Player fromPlayer;
     private ICard playingCard;
     private Player onPlayer;
     private String guess;
@@ -23,7 +23,7 @@ public class PlayCard {
     private ICard card2;
 
     private boolean isFinished;
-    private List<Player> onPlayerList;
+    private ArrayList<Player> onPlayerList;
 
     public PlayCard(Player fromPlayer, Game game){
         this.fromPlayer = fromPlayer;
@@ -39,7 +39,6 @@ public class PlayCard {
     /**
      * Updates this object
      * @param cardNr
-     * @return Returns the String that is shown in the private chat.
      */
     public void selectPlayingCard(int cardNr, MessageChannel channel){
         //Select the card
@@ -85,13 +84,12 @@ public class PlayCard {
      * Returns string that is shown in the public Chat
      * @param nr
      * @param channel
-     * @return
      */
     public void selectOnPlayer(int nr, MessageChannel channel){
         if(nr < 1 || nr > onPlayerList.size()) {
             //wrong number
-            PublicMessanger publicMessanger = new PublicMessanger();
-            publicMessanger.sendPublicMessage(channel, "This is not a valid player to play on.");
+            PublicMessenger publicMessenger = new PublicMessenger();
+            publicMessenger.sendPublicMessage(channel, "This is not a valid player to play on.");
         }
         else{
             //get onPlayer
@@ -103,7 +101,7 @@ public class PlayCard {
                 isFinished = true;
             }
             else{
-                askForFourthWord(channel);
+                askForFourthWord();
             }
         }
     }
@@ -111,8 +109,8 @@ public class PlayCard {
     public void selectGuess(int nr, MessageChannel channel){
         if(nr < 1 || nr > 7){
             //wrong number
-            PublicMessanger publicMessanger = new PublicMessanger();
-            publicMessanger.sendPublicMessage(channel, "This is not a valid card to guess");
+            PublicMessenger publicMessenger = new PublicMessenger();
+            publicMessenger.sendPublicMessage(channel, "This is not a valid card to guess");
         }
         else{
             guess = switch (nr) {
@@ -131,8 +129,7 @@ public class PlayCard {
 
     private Command createCommand(String input){
         Parser parser = new Parser();
-        Command command = parser.createCommand(input);
-        return command;
+        return parser.createCommand(input);
     }
 
     /**
@@ -140,11 +137,11 @@ public class PlayCard {
      * @param channel
      */
     public void askForOnPlayer(MessageChannel channel){
-        String result = "You are playing the " + playingCard.getName() + "." + "\n";
-        result += "Please select a player: " + "\n";
+        StringBuilder result = new StringBuilder("You are playing the " + playingCard.getName() + "." + "\n");
+        result.append("Please select a player: " + "\n");
 
         //get all playable player
-        onPlayerList =  game.getPlayerList();
+        onPlayerList = new ArrayList<>(game.getPlayerList());
 
         //Iterate over Playerlist: add player or delete protected player
         int i = 0;
@@ -153,17 +150,17 @@ public class PlayCard {
             if(player.isProtected()) onPlayerList.remove(i);
             else{
                 i++;
-                result += i + ": " + player.getName() + "\n";
+                result.append(i).append(": ").append(player.getName()).append("\n");
             }
         }
 
         //make a new message
-        PrivateMessanger pm = new PrivateMessanger();
-        Message message = pm.sendPrivateMessage(fromPlayer.getUser(), result);
+        PrivateMessenger pm = new PrivateMessenger();
+        Message message = pm.sendPrivateMessage(fromPlayer.getUser(), result.toString());
         pm.addReaction(message, i);
     }
 
-    public void askForFourthWord(MessageChannel channel){
+    public void askForFourthWord(){
         String result = fromPlayer.getName() + " plays the " + playingCard.getName() + " on " + onPlayer.getName() + ".";
         result += "\n" + "What card do you want to guess?" + "\n";
 
@@ -175,7 +172,7 @@ public class PlayCard {
         result += "6: Countess (7)" + "\n";
         result += "7: Princess (8)" + "\n";
 
-        PrivateMessanger pm = new PrivateMessanger();
+        PrivateMessenger pm = new PrivateMessenger();
         Message message = pm.sendPrivateMessage(fromPlayer.getUser(), result);
         pm.addReaction(message, 7);
     }

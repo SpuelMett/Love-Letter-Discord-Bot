@@ -19,6 +19,17 @@ public class CardPrince implements ICard{
         //remove played card from fromPlayer
         fromPlayer.removeCard(this);
 
+        //If player has a countess it must be played instead
+        if(fromPlayer.getCard().getName().equals("Countess")) {
+            //remove the countess
+            ICard countess = fromPlayer.getCard();
+            fromPlayer.removeCard(countess);
+            //give back this card (prince)
+            fromPlayer.giveCard(this);
+
+            return countess.action(fromPlayer, onPlayer, game, command);
+        }
+
         //remove card from onPlayer
         String result = onPlayer.dropCard();
 
@@ -26,7 +37,6 @@ public class CardPrince implements ICard{
         game.giveCard(onPlayer);
 
         return result;
-
     }
 
     public int getValue(){

@@ -3,9 +3,9 @@ package IO;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
-public class PublicMessanger {
+public class PublicMessenger {
 
-    public PublicMessanger(){
+    public PublicMessenger(){
 
     }
 

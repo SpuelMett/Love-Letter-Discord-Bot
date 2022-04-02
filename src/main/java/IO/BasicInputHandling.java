@@ -11,11 +11,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
-
-
 public class BasicInputHandling {
 
-    private GameHandler gameHandler;
+    private final GameHandler gameHandler;
 
     public BasicInputHandling(){
         gameHandler = new GameHandler();
@@ -37,12 +35,9 @@ public class BasicInputHandling {
 
             //run command
             CommandHandler commandHandler = new CommandHandler(player, command, totalGame);
-            String result = commandHandler.processCommand();
-            return result;
+            return commandHandler.processCommand();
         }
     }
-
-
 
     /**
      * Handles the input Message. Checks server and Player and redirects command to the command handler. Returns the answer.
@@ -50,7 +45,6 @@ public class BasicInputHandling {
      * @return
      */
     public String handleInput(Message msg){
-
         //get Server
         Guild guild = msg.getGuild();
 
@@ -82,7 +76,7 @@ public class BasicInputHandling {
         }
         //if a game already exists
         else{
-            //
+            //get the player
             Player player = getPlayer(msg, currentGame);
 
             //if the Player is not on the Server
@@ -102,15 +96,29 @@ public class BasicInputHandling {
                 //run command
                 CommandHandler commandHandler = new CommandHandler(player, command, currentGame);
                 String result = commandHandler.processCommand();
+
+                //check if the game is finished after the Command
+                if(checkGameFinished(currentGame, guild)){
+                    //result += "The game is finished.";
+                }
+
                 return result;
             }
         }
     }
 
+    private boolean checkGameFinished(TotalGame totalGame, Guild guild){
+        if(totalGame.isFinished()){
+            //Delete the game
+            gameHandler.deleteGame(guild);
+            return true;
+        }
+        else return false;
+    }
+
     /**
      * Returns the private Message
      * @param event
-     * @return
      */
     public void handlePrivateReaction(MessageReactionAddEvent event){
         //check if any Game exists with this server
@@ -118,7 +126,7 @@ public class BasicInputHandling {
         TotalGame currentGame = gameHandler.findPlayer(user);
 
         //check if a game was found
-        if(currentGame == null) return; //Player doesnt play a game of Love Letter
+        if(currentGame == null) return; //Player doesn't play a game of Love Letter
 
         //Get reaction and convert it to number
         String name = event.getReactionEmote().getEmoji();
@@ -127,18 +135,23 @@ public class BasicInputHandling {
 
         Player player = currentGame.getPlayer(user);
         currentGame.reactionResponse(player, nr);
+
+        //check if the game is finished after the reaction
+        //checkGameFinished(currentGame, event.getGuild());  BUG! event is not from a guild
     }
 
     private int emojiToInt(String emoji){
-        if(emoji.equals("1️⃣")) return 1;
-        if(emoji.equals("2️⃣")) return 2;
-        if(emoji.equals("3️⃣")) return 3;
-        if(emoji.equals("4️⃣")) return 4;
-        if(emoji.equals("5️⃣")) return 5;
-        if(emoji.equals("6️⃣")) return 6;
-        if(emoji.equals("7️⃣")) return 7;
-        if(emoji.equals("8️⃣")) return 8;
-        return 0;
+        return switch (emoji) {
+            case "1️⃣" -> 1;
+            case "2️⃣" -> 2;
+            case "3️⃣" -> 3;
+            case "4️⃣" -> 4;
+            case "5️⃣" -> 5;
+            case "6️⃣" -> 6;
+            case "7️⃣" -> 7;
+            case "8️⃣" -> 8;
+            default -> 0;
+        };
     }
 
     private Player getPlayer(Message msg, TotalGame currentGame){

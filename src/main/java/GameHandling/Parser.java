@@ -4,8 +4,6 @@ import java.util.StringTokenizer;
 
 public class Parser {
 
-    private String input;
-
     public Parser(){
 
     }
@@ -13,10 +11,10 @@ public class Parser {
     public Command createCommand(String input){
 
         //System.out.println(input);
-        String word1 = "";
-        String word2 = "";
-        String word3 = "";
-        String word4 = "";
+        String word1;
+        String word2;
+        String word3;
+        String word4;
 
         StringTokenizer tokenizer = new StringTokenizer(input);
 
