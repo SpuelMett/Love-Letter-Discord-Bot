@@ -40,7 +40,7 @@ public class PlayCard {
      * Updates this object
      * @param cardNr
      */
-    public void selectPlayingCard(int cardNr, MessageChannel channel){
+    public void selectPlayingCard(int cardNr){
         //Select the card
         if(cardNr == 1) playingCard = card1;
         else if(cardNr == 2) playingCard = card2;
@@ -48,7 +48,7 @@ public class PlayCard {
 
         //checks if card needs a player to be played on
         if(!playingCard.isPlayOnPlayer()) isFinished = true;
-        else askForOnPlayer(channel);
+        else askForOnPlayer();
     }
 
     /**
@@ -57,32 +57,47 @@ public class PlayCard {
      */
     public String action(){
         Command command;
+
+        //Prepare the text that is posted in the public channel. Who played what card.
+        String playResult = fromPlayer.getName() + " played a " + playingCard.getName();
+
         if(onPlayer == null){
             //simple card without onPlayer
             command = createCommand("play " + playingCard.getName().toLowerCase());
+
+            //don't add anything to the play call
         }
         else if(guess == null){
             //card with onPlayer but without a guess
             command = createCommand("play " + playingCard.getName().toLowerCase() + " " +  onPlayer.getName().toLowerCase());
+
+            //append on what player the play is to the play call
+            playResult += " on " + onPlayer.getName();
         }
         else{
             //complex card (guard) with a guess
             command = createCommand("play " + playingCard.getName().toLowerCase() + " " + onPlayer.getName().toLowerCase() + " " + guess);
+
+            //append on what player the play is to the play call
+            playResult += " on " + onPlayer.getName();
         }
-        String playResult = fromPlayer.getName() + " played a " + playingCard.getName() + "." + "\n";
+
+        playResult += ".\n";
+
+        //add the result of the play to the public message
         playResult += playingCard.action(fromPlayer, onPlayer, game, command);
         return playResult;
     }
 
     public void selectAny(int nr, MessageChannel channel){
-        if(playingCard == null) selectPlayingCard(nr, channel);
+        if(playingCard == null) selectPlayingCard(nr);
         else if(onPlayer == null) selectOnPlayer(nr, channel);
         else if(guess == null) selectGuess(nr, channel);
     }
 
     /**
-     * Returns string that is shown in the public Chat
-     * @param nr
+     * Return a string that is shown in the public Chat
+     * @param nr nr of the reaction
      * @param channel
      */
     public void selectOnPlayer(int nr, MessageChannel channel){
@@ -134,9 +149,8 @@ public class PlayCard {
 
     /**
      * Asks the player in the public channel to select a player.
-     * @param channel
      */
-    public void askForOnPlayer(MessageChannel channel){
+    public void askForOnPlayer(){
         StringBuilder result = new StringBuilder("You are playing the " + playingCard.getName() + "." + "\n");
         result.append("Please select a player: " + "\n");
 

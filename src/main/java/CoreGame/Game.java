@@ -8,15 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * if the game is finished after the round the names are printed out
+ */
 public class Game {
 
     //currentPlayer is still in playerQueue
     private Player currentPlayer;
     private PlayCard playCard;
-    private Queue<Player> playerQueue;
+    private final Queue<Player> playerQueue;
     private final Stapel stapel;
 
-
+    /**
+     *
+     * @param playerQueue list of player that take part
+     */
     public Game(Queue<Player> playerQueue){
         this.playerQueue = playerQueue;
         stapel = new Stapel();
@@ -25,26 +31,41 @@ public class Game {
         giveAllCards();
     }
 
+    /**
+     * Gives the player a new card from the card stack
+     * @param player Player who gets the card
+     */
     public void giveCard(Player player){
         ICard card = stapel.drawCard();
         player.giveCard(card);
     }
+
+    /**
+     * Give all player a new card
+     */
     public void giveAllCards(){
         for(Player player:playerQueue){
             giveCard(player);
         }
     }
 
+    /**
+     * Removes the player from the active player list if he lost.
+     * @param player player that lost
+     */
     public void eliminatePlayer(Player player){
         playerQueue.remove(player);
         if(currentPlayer.equals(player)) currentPlayer = null;
-        //nextTurn();
     }
 
     public List<Player> getPlayerList(){
         return playerQueue.stream().toList();
     }
 
+    /**
+     * Prepares the first round of the game
+     * @return public message
+     */
     public String firstTurn(){
         currentPlayer = playerQueue.peek();
         playCard = new PlayCard(currentPlayer, this);
@@ -53,20 +74,22 @@ public class Game {
         return output;
     }
 
+    /**
+     * Prepares the next Turn.
+     * Select the new current Player and ask him to do his move
+     * @return text for the public channel
+     */
     public String nextTurn(){
         if(currentPlayer != null){
             //remove currentPlayer from first position and queue it as last
             playerQueue.poll();
             playerQueue.add(currentPlayer);
-
-            //select new currentPlayer
         }
         //select new currentPlayer
         currentPlayer = playerQueue.peek();
         playCard = new PlayCard(currentPlayer, this);
 
         return askForAction();
-        //return currentPlayer.getName() +  " is on turn.";
     }
 
     /**
@@ -88,6 +111,14 @@ public class Game {
         return playerQueue.contains(player);
     }
 
+    /**
+     * Player wants to play a card.
+     * Gets the command from a player and tries to make his play
+     * It must be checked if the play is valid.
+     * @param player player playing the card
+     * @param command
+     * @return
+     */
     public String playCard(Player player, Command command){
         String result = "";
         if(currentPlayer.equals(player)){
@@ -116,24 +147,42 @@ public class Game {
                         if(card.isNeedsFourthWord()){
                             if(!command.hasFourthWord()) return "Please say also what you want to guess.";
                             if(!isValidCardName(command.getFourthWord().toLowerCase())) return command.getFourthWord() + " is not a valid card name.";
-                            if(command.getFourthWord().toLowerCase().equals("guard")) return "You cant guess the guard!";
+                            if(command.getFourthWord().equalsIgnoreCase("guard")) return "You cant guess the guard!";
                         }
 
                         //play card
                         result += makePlayCard(card, currentPlayer, onPlayer, command);
-                        return result;
                     }
                 }
                 //Play card
                 else{
                     result += makePlayCard(card, currentPlayer, null, command);
-                    return result;
                 }
             }
         }
-        else return "Its not your turn.";
+        else {
+            return  "Its not your turn.";
+        }
+
+        //check if the game is finished after the play of the player
+        if(isFinished()){
+            //print who won and set t
+            result += "\n" + "The round is over. The winner is: ";
+            for(Player wonPlayer : calcWinners()){
+                result += wonPlayer.getName() + " ";
+            }
+        }
+        return result;
     }
 
+    /**
+     *
+     * @param card card to play
+     * @param currentPlayer player that plays the card
+     * @param onPlayer player that is being targeted
+     * @param command command object
+     * @return
+     */
     private String makePlayCard(ICard card,Player currentPlayer, Player onPlayer, Command command){
         //Play the card
         String result = card.action(currentPlayer, onPlayer, this, command);
@@ -152,6 +201,11 @@ public class Game {
         return null;
     }
 
+    /**
+     * Check if the game is finished.
+     * The game is finished if only one player is left or the card stack is empty.
+     * @return
+     */
     public boolean isFinished(){
         //check if only one player  is left
         if(playerQueue.size() < 2){
@@ -165,21 +219,29 @@ public class Game {
         return false;
     }
 
+    /**
+     * Calculates who won the game. Returns a list of the winners
+     * @return
+     */
     public ArrayList<Player> calcWinners(){
         ArrayList<Player> maxPlayerList = new ArrayList<>();
         if(playerQueue.size() == 1){
             maxPlayerList.add(playerQueue.poll());
-            return maxPlayerList;
         }
         else{
-            //who has the highest card
+            //check who has the highest card
             int maxValue = 0;
 
+            //iterate over every player left
             for(Player player:playerQueue){
+                //get card value of the player
                 int currentValue = player.getCard().getValue();
+
+                //ad player to the list if it has the same value as the previous highest value
                 if(currentValue == maxValue){
                     maxPlayerList.add(player);
                 }
+                //if the player has a higher card, clear the list, add the player and set the new max value
                 if(currentValue >= maxValue){
                     maxValue = currentValue;
                     maxPlayerList.clear();
@@ -190,6 +252,11 @@ public class Game {
         return maxPlayerList;
     }
 
+    /**
+     * Checks if a string refers to a card of the game
+     * @param name of the card
+     * @return
+     */
     private boolean isValidCardName(String name){
         return switch (name) {
             case "guard", "priest", "baron", "handmaid", "prince", "king", "countess", "princess" -> true;
@@ -198,11 +265,11 @@ public class Game {
     }
 
     /**
+     * Triggered when a player of the current game adds a reaction
      * Return the private Message.
      * @param player
      * @param cardNr
-     * @param channel is the public messageChannel
-     * @return private Message
+     * @param channel public messageChannel
      */
     public void reactionResponse(Player player, int cardNr, MessageChannel channel){
         //check if player is the current player
@@ -213,13 +280,14 @@ public class Game {
 
         //check if playCard is finished. If yes ...
         if(playCard.isFinished()){
-            //Next turn
+            //Run the card play
             String result = playCard.action() + "\n";
-            result += nextTurn();
+
+            //if the game is not finished after that play start the next turn
+            if(!isFinished()) result += nextTurn();
 
             //send result to public channel
-            PublicMessenger publicMessenger = new PublicMessenger();
-            publicMessenger.sendPublicMessage(channel, result);
+            new PublicMessenger().sendPublicMessage(channel, result);
         }
     }
 }

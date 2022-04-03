@@ -31,7 +31,7 @@ public class CardGuard implements ICard{
 
             //eliminate onPlayer
             game.eliminatePlayer(onPlayer);
-            return fromPlayer.getName() + " guessed that " + onPlayer.getName() + " has a " + cardName + ". The guess was correct.";
+            return fromPlayer.getName() + " guessed that " + onPlayer.getName() + " has a " + cardName + ". The guess was correct. " + onPlayer.getName() + " was eliminated.";
         }
         else{
             //card does not match

@@ -1,6 +1,7 @@
 package CoreGame;
 
 import GameHandling.Command;
+import IO.PublicMessenger;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 
@@ -12,13 +13,11 @@ public class TotalGame {
     private HashMap<Player, Integer> scoreList;
     private static final int maxRounds = 4;
     private boolean isStarted;
-    private boolean isRoundRunning;
+    private boolean isRoundRunning; //does
     private boolean isFinished;
     private Game game;
     private Player hostPlayer;
     private MessageChannel channel;
-
-
 
     public TotalGame(){
         playerList = new HashMap<>();
@@ -26,9 +25,11 @@ public class TotalGame {
         isStarted = false;
         isFinished = false;
     }
+
     public MessageChannel getChannel() {
         return channel;
     }
+
     public void setChannel(MessageChannel channel){
         this.channel = channel;
     }
@@ -43,6 +44,9 @@ public class TotalGame {
      */
     public String startGame(){
         if(!isStarted){
+            //check if more than one player is participating
+            if(playerList.size() < 2) return "You can not play alone.";
+
             Queue<Player> playerQueue = new LinkedList<>(playerList.values());
             game = new Game(playerQueue);
             isRoundRunning = true;
@@ -97,9 +101,6 @@ public class TotalGame {
             //end the game
             isFinished = true;
         }
-
-        //Reset values and objects
-        reset();
     }
 
     private void reset(){
@@ -112,6 +113,11 @@ public class TotalGame {
         }
     }
 
+    /**
+     * Returns a string list with all players and there scores of the game
+     *
+     * @return Score Description
+     */
     public String getScoreDescription(){
         StringBuilder sb = new StringBuilder();
         sb.append("Scores: ").append("\n");
@@ -127,7 +133,8 @@ public class TotalGame {
     }
 
     /**
-     * Run the card play and check if game is over
+     * Run the card play and check if game is over. Similar to the reactionResponse function.
+     * Returns the string that should be pasted in the public channel.
      * @param player
      * @param command
      * @return
@@ -140,24 +147,44 @@ public class TotalGame {
 
         //check if game is over
         if(game.isFinished()){
-            result.append("\n" + "The round is over. The winner is ");
-            ArrayList<Player> winnerList = game.calcWinners();
-            for(Player winner:winnerList){
-                result.append(winner.getName()).append("\n");
-                addScore(winner);
-            }
+            RoundFinished();
         }
+
         return result.toString();
     }
 
     /**
-     *
-     * @param player
-     * @param nr
+     * A player reacted with a number nr. If the round is running it should be parsed to the current game.
+     * After that should be checked if the game is finished.
+     * @param player Player that made the reaction
+     * @param nr number of the reaction
      */
     public void reactionResponse(Player player, int nr) {
         //only do something, when the round is running
         if(isRoundRunning) game.reactionResponse(player, nr, channel);
+
+        //check if the game is finished
+        if(game.isFinished()){
+            RoundFinished();
+        }
+    }
+
+    /**
+     * If yes report the winner and start show scores
+     */
+    private void RoundFinished(){
+        //Add scores
+        ArrayList<Player> winnerList = game.calcWinners();
+        for(Player winner:winnerList){
+            addScore(winner);
+        }
+
+        //Reset values and objects
+        reset();
+
+        //send message
+        String text = "The round is over. The new scores are: " + "\n" + getScoreDescription() + "\n" + "Type start to start a new round.";
+        new PublicMessenger().sendPublicMessage(channel, text);
     }
 
     public boolean isFinished(){
